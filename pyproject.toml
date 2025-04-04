@@ -1,0 +1,31 @@
+[project]
+name = "distrello"
+version = "0.1.0"
+description = "Discord bot that connects Discord forums to a Trello board."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "aiosqlite>=0.21.0",
+    "alembic>=1.15.2",
+    "discord-py[speed]>=2.5.2",
+    "jishaku>=2.6.0",
+    "loguru>=0.7.3",
+    "pydantic>=2.11.1",
+    "pydantic-settings>=2.8.1",
+    "python-dotenv>=1.1.0",
+    "sqlalchemy>=2.0.40",
+    "trello-py",
+]
+
+[tool.pyright]
+enableTypeIgnoreComments = false
+reportIncompatibleMethodOverride = false
+reportIncompatibleVariableOverride = false
+reportUnnecessaryComparison = true
+reportUnnecessaryContains = true
+reportUnnecessaryIsInstance = true
+reportUnnecessaryTypeIgnoreComment = true
+typeCheckingMode = "standard"
+
+[tool.uv.sources]
+trello-py = { git = "https://github.com/seriaati/trello-py" }

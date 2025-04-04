@@ -1,2 +1,3 @@
 # distrello
- Discord bot that connects Discord forums and Trello board
+
+Discord bot that connects Discord forums to a Trello board.
