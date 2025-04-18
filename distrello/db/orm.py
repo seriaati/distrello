@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlmodel import select
+from sqlmodel import col, delete, select
 
 from distrello.db.models import ForumListLink, ServerBoardLink, TagLabelLink, ThreadCardLink
 from distrello.db.session import get_db
@@ -35,6 +35,12 @@ class Database:
             await session.refresh(server)
 
         return server
+
+    async def delete_server(self, server_id: int) -> None:
+        async with get_db() as session:
+            stmt = delete(ServerBoardLink).where(col(ServerBoardLink.id) == server_id)
+            await session.execute(stmt)
+            await session.commit()
 
     async def get_forums(self, server_id: int) -> Sequence[ForumListLink]:
         async with get_db() as session:

@@ -7,7 +7,7 @@ import discord
 from discord import ui
 
 from distrello.errors import AccountNotLinkedError, BoardNotLinkedError, BotError
-from distrello.ui.components import PaginatorView
+from distrello.ui.components import PaginatorSelect, PaginatorView
 from distrello.utils.embeds import DefaultEmbed
 
 if TYPE_CHECKING:
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from distrello.utils.types import Interaction
 
 
-class LinkListSelect(ui.Select["LinkListView"]):
+class LinkListSelect(PaginatorSelect["LinkListView"]):
     def __init__(self, *, lists: Sequence[trello.TrelloList], current: str | None) -> None:
         super().__init__(
             placeholder="Select a list to link",
@@ -32,7 +32,12 @@ class LinkListSelect(ui.Select["LinkListView"]):
         self.lists = lists
 
     async def callback(self, i: Interaction) -> None:
-        if i.guild is None or self.view is None:
+        if i.guild is None:
+            return
+
+        changed = self.change_page()
+        if changed:
+            await i.response.edit_message(view=self.view)
             return
 
         selected_list_id = self.values[0]

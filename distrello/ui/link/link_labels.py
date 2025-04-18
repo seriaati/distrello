@@ -3,10 +3,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 import discord
-from discord import ui
 
 from distrello.errors import InvalidInputError
-from distrello.ui.components import View
+from distrello.ui.components import PaginatorSelect, View
 from distrello.utils.embeds import DefaultEmbed
 
 if TYPE_CHECKING:
@@ -18,7 +17,7 @@ if TYPE_CHECKING:
     from distrello.utils.types import Interaction
 
 
-class LabelSelect(ui.Select["LinkLabelsView"]):
+class LabelSelect(PaginatorSelect["LinkLabelsView"]):
     def __init__(
         self, labels: list[trello.TrelloLabel], tag_id: int, db_tag: TagLabelLink | None
     ) -> None:
@@ -45,7 +44,9 @@ class LabelSelect(ui.Select["LinkLabelsView"]):
         self.tag_id = tag_id
 
     async def callback(self, i: Interaction) -> None:
-        if self.view is None:
+        changed = self.change_page()
+        if changed:
+            await i.response.edit_message(view=self.view)
             return
 
         label = None if self.values[0] == "none" else self.view.get_label(self.values[0])
@@ -69,7 +70,7 @@ class LabelSelect(ui.Select["LinkLabelsView"]):
         await i.response.edit_message(embed=embed, view=self.view)
 
 
-class TagSelect(ui.Select["LinkLabelsView"]):
+class TagSelect(PaginatorSelect["LinkLabelsView"]):
     def __init__(self, tags: Sequence[discord.ForumTag]) -> None:
         super().__init__(
             placeholder="Select a tag to link",
@@ -79,7 +80,9 @@ class TagSelect(ui.Select["LinkLabelsView"]):
         self.tags = tags
 
     async def callback(self, i: Interaction) -> Any:
-        if self.view is None:
+        changed = self.change_page()
+        if changed:
+            await i.response.edit_message(view=self.view)
             return
 
         tag = self.view.get_tag(int(self.values[0]))

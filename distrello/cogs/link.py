@@ -88,7 +88,7 @@ class LinkCog(commands.GroupCog, name="link"):
             embed = DefaultEmbed(
                 title="Already Linked",
                 description=f"This server is already linked to **{board_name or 'an unknown Trello board'}**.\n"
-                "You can still link to another board, and it will replace the current one.\n"
+                "If you link to another board, all __channel to list__ and __tag to label__ links will be **deleted**.\n"
                 "Do you want to continue?",
             )
             view = LinkBoardConfirmView(boards, server.board_id)
@@ -130,6 +130,15 @@ class LinkCog(commands.GroupCog, name="link"):
 
         await i.response.defer(ephemeral=True)
 
+        tags = channel.available_tags
+        if not tags:
+            embed = ErrorEmbed(
+                title="No Tags Available",
+                description="This forum channel has no tags available to link to Trello labels.",
+            )
+            await i.followup.send(embed=embed, ephemeral=True)
+            return
+
         server = await self.bot.db.get_server(i.guild.id)
         if server is None or server.api_token is None:
             raise AccountNotLinkedError
@@ -143,15 +152,6 @@ class LinkCog(commands.GroupCog, name="link"):
         if not labels:
             embed = ErrorEmbed(
                 title="No Labels Found", description="You have no labels in this board."
-            )
-            await i.followup.send(embed=embed, ephemeral=True)
-            return
-
-        tags = channel.available_tags
-        if not tags:
-            embed = ErrorEmbed(
-                title="No Tags Available",
-                description="This forum channel has no tags available to link to Trello labels.",
             )
             await i.followup.send(embed=embed, ephemeral=True)
             return

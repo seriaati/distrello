@@ -7,7 +7,7 @@ import discord
 from discord import ui
 
 from distrello.errors import AccountNotLinkedError, BotError
-from distrello.ui.components import PaginatorView, View
+from distrello.ui.components import PaginatorSelect, PaginatorView, View
 from distrello.utils.embeds import DefaultEmbed
 
 if TYPE_CHECKING:
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from distrello.utils.types import Interaction
 
 
-class LinkBoardSelect(ui.Select["LinkBoardView"]):
+class LinkBoardSelect(PaginatorSelect["LinkBoardView"]):
     def __init__(self, *, boards: Sequence[trello.TrelloBoard], current: str | None) -> None:
         super().__init__(
             placeholder="Select a board to link",
@@ -33,6 +33,11 @@ class LinkBoardSelect(ui.Select["LinkBoardView"]):
 
     async def callback(self, i: Interaction) -> None:
         if i.guild is None:
+            return
+
+        changed = self.change_page()
+        if changed:
+            await i.response.edit_message(view=self.view)
             return
 
         selected_board_id = self.values[0]
@@ -117,6 +122,10 @@ class LinkBoardConfirmView(View):
 
     @ui.button(label="Yes", style=discord.ButtonStyle.success, custom_id="link_board:confirm_yes")
     async def confirm(self, i: Interaction, _: ui.Button) -> None:
+        if i.guild is None:
+            return
+
+        await i.client.db.delete_server(i.guild.id)
         view = LinkBoardView(self.boards, self.current)
         await view.start(i, edit=True)
 

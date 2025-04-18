@@ -31,8 +31,8 @@ class SyncCog(commands.Cog):
     async def get_thread_label_ids(self, forum_id: int) -> list[str]:
         db_tags = await self.bot.db.get_tags(forum_id)
         return [tag.label_id for tag in db_tags if tag.label_id is not None]
-    
-    async def sync_thread_to_card(self, thread_id: int, guild_id: int, forum_id: int)
+
+    # async def sync_thread_to_card(self, thread_id: int, guild_id: int, forum_id: int)
 
     async def sync_forum(
         self, forum_id: int, guild: discord.Guild, server: ServerBoardLink
