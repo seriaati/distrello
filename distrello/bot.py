@@ -16,13 +16,12 @@ from distrello.utils.embeds import ErrorEmbed
 
 if TYPE_CHECKING:
     import aiohttp
-    from sqlalchemy.ext.asyncio import AsyncSession
 
     from distrello.utils.types import Interaction
 
 
 class Distrello(commands.Bot):
-    def __init__(self, session: aiohttp.ClientSession, db_session: AsyncSession) -> None:
+    def __init__(self, session: aiohttp.ClientSession) -> None:
         super().__init__(
             commands.when_mentioned,
             intents=discord.Intents.default(),
@@ -32,7 +31,7 @@ class Distrello(commands.Bot):
             tree_cls=CommandTree,
         )
         self.session = session
-        self.db = Database(db_session)
+        self.db = Database()
 
     @property
     def oauth_redirect_url(self) -> str:

@@ -37,7 +37,6 @@ class DatabaseSession:
             await session.close()
 
 
-# Context manager for easier session handling
 class AsyncSessionContext:
     def __init__(self) -> None:
         self.session: AsyncSession | None = None
@@ -54,6 +53,5 @@ class AsyncSessionContext:
                 await DatabaseSession.commit_session(self.session)
 
 
-# Simple function to get a session context
 def get_db() -> AsyncSessionContext:
     return AsyncSessionContext()

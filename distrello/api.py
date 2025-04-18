@@ -1,14 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from aiohttp import web
 from loguru import logger
 
 from distrello.db.orm import Database
-
-if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import AsyncSession
 
 html = """
 <!DOCTYPE html>
@@ -53,12 +48,12 @@ html = """
 
 
 class TrelloOAuthCallbackHandler:
-    def __init__(self, db_session: AsyncSession) -> None:
+    def __init__(self) -> None:
         self.app = web.Application()
         self.app.router.add_get("/callback", self.handle_callback)
         self.app.router.add_post("/save_token", self.save_token_endpoint)
 
-        self.db = Database(db_session)
+        self.db = Database()
 
     async def handle_callback(self, _: web.Request) -> web.Response:
         return web.Response(text=html, content_type="text/html")
