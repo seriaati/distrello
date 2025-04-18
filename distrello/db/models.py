@@ -1,32 +1,28 @@
 from __future__ import annotations
 
+import sqlmodel
 import trello
-from sqlalchemy import BigInteger, ForeignKey, Text
-from sqlalchemy.orm import DeclarativeBase, Mapped, Relationship, mapped_column, relationship
 
 from distrello.utils.config import CONFIG
 
 
-class Base(DeclarativeBase):
-    pass
+class ServerBoardLink(sqlmodel.SQLModel, table=True):
+    """A Discord server is a Trello board."""
 
+    __tablename__: str = "servers"
 
-class ServerBoardLink(Base):
-    __tablename__ = "server_boards"
-
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: int = sqlmodel.Field(primary_key=True, sa_type=sqlmodel.BigInteger)
     """Discord server ID."""
-    api_token: Mapped[str | None] = mapped_column(Text, nullable=True)
+    api_token: str | None = None
     """Trello API token, None if not set yet."""
 
-    board_id: Mapped[str | None] = mapped_column(Text, nullable=True)
+    board_id: str | None = None
     """Trello board ID, None if not set yet."""
-    completed_list_id: Mapped[str | None] = mapped_column(Text, nullable=True)
+    completed_list_id: str | None = None
     """Trello list ID for completed cards, None if not set yet."""
 
-    forums: Relationship[list[ForumListLink]] = relationship(
-        "DiscordForum", back_populates="server", cascade="all, delete-orphan"
-    )
+    # Relationships
+    forums: list[ForumListLink] = sqlmodel.Relationship(back_populates="server")
 
     @property
     def trello(self) -> trello.TrelloAPI:
@@ -37,46 +33,52 @@ class ServerBoardLink(Base):
         return trello.TrelloAPI(api_key=CONFIG.trello_api_key, api_token=self.api_token)
 
 
-class TagLabelLink(Base):
-    __tablename__ = "tag_labels"
+class ForumListLink(sqlmodel.SQLModel, table=True):
+    """A forum (channel) in Discord is a list in Trello."""
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    """Discord forum tag ID."""
-    label_id: Mapped[str | None] = mapped_column(Text, nullable=True)
-    """Trello label ID this tag corresponds to, None if is_completed_tag is True."""
-    is_completed_tag: Mapped[bool] = mapped_column(nullable=False, default=False)
-    """Whether this tag marks a card as completed."""
-    forum_id: Mapped[int] = mapped_column(ForeignKey("discord_forums.id"))
+    __tablename__: str = "forums"
+
+    id: int = sqlmodel.Field(primary_key=True, sa_type=sqlmodel.BigInteger)
     """Discord forum ID."""
 
-    forum: Relationship[ForumListLink] = relationship("DiscordForum", back_populates="tags")
-
-
-class ForumListLink(Base):
-    __tablename__ = "forum_lists"
-
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    """Discord forum ID."""
-    server_id: Mapped[int] = mapped_column(ForeignKey("discord_servers.id"), primary_key=True)
-    """Discord server ID."""
-
-    board_id: Mapped[str] = mapped_column(Text, nullable=False)
+    board_id: str
     """Trello board ID."""
-    list_id: Mapped[str] = mapped_column(Text, nullable=False)
+    list_id: str
     """Trello list ID."""
 
-    server: Relationship[ServerBoardLink] = relationship("DiscordServer", back_populates="forums")
-    tags: Relationship[list[TagLabelLink]] = relationship(
-        "DiscordForumTag", back_populates="forum", cascade="all, delete-orphan"
-    )
+    # Relationships
+    server_id: int = sqlmodel.Field(foreign_key="servers.id")
+    server: ServerBoardLink = sqlmodel.Relationship(back_populates="forums")
+    tags: list[TagLabelLink] = sqlmodel.Relationship(back_populates="forum")
 
 
-class ThreadCardLink(Base):
-    __tablename__ = "thread_cards"
+class TagLabelLink(sqlmodel.SQLModel, table=True):
+    """A tag on a thread in Discord is a label on a card in Trello."""
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    __tablename__: str = "tags"
+
+    id: int = sqlmodel.Field(primary_key=True, sa_type=sqlmodel.BigInteger)
+    """Discord forum tag ID."""
+    label_id: str | None = None
+    """Trello label ID this tag corresponds to, None if is_completed_tag is True."""
+    is_completed_tag: bool = False
+    """Whether this tag marks a card as completed."""
+
+    # Relationships
+    forum_id: int = sqlmodel.Field(foreign_key="forums.id")
+    forum: ForumListLink = sqlmodel.Relationship(back_populates="tags")
+
+
+class ThreadCardLink(sqlmodel.SQLModel, table=True):
+    """A thread in Discord is a card in Trello."""
+
+    __tablename__: str = "threads"
+
+    id: int = sqlmodel.Field(primary_key=True, sa_type=sqlmodel.BigInteger)
     """Discord thread ID."""
-    forum_id: Mapped[int] = mapped_column(ForeignKey("discord_forums.id"), primary_key=True)
-    """Discord forum ID."""
-    card_id: Mapped[str] = mapped_column(Text, nullable=False)
+    card_id: str
     """Trello card ID."""
+
+    # Relationships
+    forum_id: int = sqlmodel.Field(foreign_key="forums.id")
+    forum: ForumListLink = sqlmodel.Relationship(back_populates="threads")

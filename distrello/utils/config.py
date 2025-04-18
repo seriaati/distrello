@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings
 
 
 class Config(BaseSettings):
-    db_url: str
+    db_url: str = "sqlite+aiosqlite:///./distrello.db"
     trello_api_key: str
     discord_bot_token: str
     env: Literal["dev", "prod"] = "dev"

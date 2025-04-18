@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlalchemy import select
+from sqlmodel import select
 
 from distrello.db.models import ForumListLink, ServerBoardLink, TagLabelLink, ThreadCardLink
 

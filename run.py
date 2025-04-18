@@ -6,10 +6,10 @@ import contextlib
 import aiohttp
 import discord
 from loguru import logger
+from sqlmodel import SQLModel
 
 from distrello.api import TrelloOAuthCallbackHandler
 from distrello.bot import Distrello
-from distrello.db.models import Base
 from distrello.db.session import engine, get_db
 from distrello.utils.config import CONFIG
 from distrello.utils.logging import setup_logging
@@ -21,7 +21,7 @@ discord.VoiceClient.warn_nacl = False
 async def create_tables() -> None:
     async with engine.begin() as conn:
         try:
-            await conn.run_sync(Base.metadata.create_all)
+            await conn.run_sync(SQLModel.metadata.create_all)
         except Exception as e:
             logger.error(f"Error creating database tables: {e}")
             logger.error("Application will continue, but database functionality may be limited")
