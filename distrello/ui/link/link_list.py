@@ -63,7 +63,7 @@ class LinkListSelect(ui.Select["LinkListView"]):
 
         embed = DefaultEmbed(
             title="List Linked",
-            description=f"Successfully linked **{selected_list.name}** to <#{self.view.forum_id}>",
+            description=f"Successfully linked <#{self.view.forum_id}> to **{selected_list.name}**",
         )
         await i.response.edit_message(embed=embed, view=None)
 

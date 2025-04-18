@@ -53,7 +53,7 @@ class LinkBoardSelect(ui.Select["LinkBoardView"]):
 
         embed = DefaultEmbed(
             title="Board Linked",
-            description=f"Successfully linked **{selected_board.name}** to this server.",
+            description=f"Successfully linked **{i.guild.name}** to **{selected_board.name}**",
         )
         await i.response.edit_message(embed=embed, view=None)
 

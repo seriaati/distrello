@@ -23,7 +23,9 @@ class LinkCog(commands.GroupCog, name="link"):
     def __init__(self, bot: Distrello) -> None:
         self.bot = bot
 
-    @app_commands.command(name="account", description="Link your Trello account to this server")
+    @app_commands.command(
+        name="account", description="Link this Discord server to a Trello account"
+    )
     async def link_account(self, i: Interaction) -> Any:
         if i.guild is None:
             return
@@ -59,7 +61,7 @@ class LinkCog(commands.GroupCog, name="link"):
         view.add_item(ui.Button(label="Authorize", url=url))
         await i.followup.send(embed=embed, view=view)
 
-    @app_commands.command(name="board", description="Link a Trello board to this server")
+    @app_commands.command(name="board", description="Link this Discord server to a Trello board")
     async def link_board(self, i: Interaction) -> Any:
         if i.guild is None:
             return
@@ -96,7 +98,7 @@ class LinkCog(commands.GroupCog, name="link"):
         view = LinkBoardView(boards, server.board_id)
         await view.start(i)
 
-    @app_commands.command(name="list", description="Link a Trello list to a forum channel")
+    @app_commands.command(name="list", description="Link a Discord forum channel to a Trello list")
     async def link_list(self, i: Interaction, channel: discord.ForumChannel) -> Any:
         if i.guild is None:
             return
@@ -120,7 +122,7 @@ class LinkCog(commands.GroupCog, name="link"):
         await view.start(i)
 
     @app_commands.command(
-        name="labels", description="Link Trello labels to tags in the forum channel"
+        name="labels", description="Link tags in a Discord forum channel to Trello labels"
     )
     async def link_labels(self, i: Interaction, channel: discord.ForumChannel) -> Any:
         if i.guild is None:
