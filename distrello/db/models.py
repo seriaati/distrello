@@ -1,6 +1,4 @@
-from __future__ import annotations
-
-import sqlmodel
+import sqlmodel  # noqa: I002
 import trello
 
 from distrello.utils.config import CONFIG
@@ -22,7 +20,7 @@ class ServerBoardLink(sqlmodel.SQLModel, table=True):
     """Trello list ID for completed cards, None if not set yet."""
 
     # Relationships
-    forums: list[ForumListLink] = sqlmodel.Relationship(back_populates="server")
+    forums: list["ForumListLink"] = sqlmodel.Relationship(back_populates="server")
 
     @property
     def trello(self) -> trello.TrelloAPI:
@@ -48,8 +46,9 @@ class ForumListLink(sqlmodel.SQLModel, table=True):
 
     # Relationships
     server_id: int = sqlmodel.Field(foreign_key="servers.id")
-    server: ServerBoardLink = sqlmodel.Relationship(back_populates="forums")
-    tags: list[TagLabelLink] = sqlmodel.Relationship(back_populates="forum")
+    server: "ServerBoardLink" = sqlmodel.Relationship(back_populates="forums")
+    tags: list["TagLabelLink"] = sqlmodel.Relationship(back_populates="forum")
+    threads: list["ThreadCardLink"] = sqlmodel.Relationship(back_populates="forum")
 
 
 class TagLabelLink(sqlmodel.SQLModel, table=True):
@@ -66,7 +65,7 @@ class TagLabelLink(sqlmodel.SQLModel, table=True):
 
     # Relationships
     forum_id: int = sqlmodel.Field(foreign_key="forums.id")
-    forum: ForumListLink = sqlmodel.Relationship(back_populates="tags")
+    forum: "ForumListLink" = sqlmodel.Relationship(back_populates="tags")
 
 
 class ThreadCardLink(sqlmodel.SQLModel, table=True):
@@ -81,4 +80,4 @@ class ThreadCardLink(sqlmodel.SQLModel, table=True):
 
     # Relationships
     forum_id: int = sqlmodel.Field(foreign_key="forums.id")
-    forum: ForumListLink = sqlmodel.Relationship(back_populates="threads")
+    forum: "ForumListLink" = sqlmodel.Relationship(back_populates="threads")
