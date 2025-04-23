@@ -116,6 +116,12 @@ class Database:
 
         return forum_tag
 
+    async def delete_tag_by_label_id(self, label_id: str) -> None:
+        async with get_db() as session:
+            stmt = delete(TagLabelLink).where(col(TagLabelLink.label_id) == label_id)
+            await session.execute(stmt)
+            await session.commit()
+
     async def get_thread(self, thread_id: int) -> ThreadCardLink | None:
         async with get_db() as session:
             stmt = select(ThreadCardLink).where(ThreadCardLink.id == thread_id)
